@@ -3,6 +3,7 @@ from typing import NamedTuple
 
 dirname, _ = os.path.split(os.path.dirname(__file__))
 
+
 class ConveRTModelConfig(NamedTuple):
 
     num_embed_hidden: int = 512
@@ -19,10 +20,6 @@ class ConveRTModelConfig(NamedTuple):
 
 
 class ConveRTTrainConfig(NamedTuple):
-
-    sp_model_path: str = os.path.join(dirname, "data/en.wiki.bpe.vs25000.model")
-    dataset_path: str = os.path.join(dirname, "data/sample-dataset.json")
-    test_dataset_path: str = "data/sample-dataset.json"
 
     model_save_dir: str = "lightning_logs/checkpoints/"
     log_dir: str = "lightning_logs"

@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 from collections import OrderedDict
 
@@ -6,16 +7,16 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 
-from src.config import ConveRTModelConfig, ConveRTTrainConfig
-from src.criterion import LossFunction
+from config import ConveRTModelConfig, ConveRTTrainConfig
+from criterion import LossFunction
 
-from src.model_components import FeedForward2, TransformerLayers
+from model_components import FeedForward2, TransformerLayers
 
-import argparse
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from sentencepiece import SentencePieceProcessor
-from src.dataset import DataModule, RedditData, load_instances_from_reddit_json
+from dataset import DataModule, RedditData, load_instances_from_reddit_json
 
-from src.lr_decay import LearningRateDecayCallback
+from lr_decay import LearningRateDecayCallback
 
 logger = logging.getLogger(__name__)
 
@@ -133,11 +134,20 @@ class SingleContextConvert(pl.LightningModule):
 def _parse_args():
     """Parse command-line arguments."""
 
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser(
+        description="ConveRT model trainer",
+        formatter_class=RawDescriptionHelpFormatter,
+    )
     #parser.add_argument("--gpus", type = int, default = 1)
     #parser.add_argument("--precision", type = int, default = 16)
-    parser.add_argument("--progress_bar_refresh_rate", type = int, default = 1)
-    parser.add_argument("--row_log_interval", type = int, default = 1)
+    parser.add_argument("--progress_bar_refresh_rate", type = int, default = 5)
+    parser.add_argument("--row_log_interval", type = int, default = 5)
+
+    parser.add_argument(
+        "--input_data_dir",
+        required=True,
+        help="directory with input data files",
+    )
 
     args = parser.parse_args()
 
@@ -150,8 +160,13 @@ def main(**kwargs):
     model_config = ConveRTModelConfig()
     tokenizer = SentencePieceProcessor()
     args = _parse_args()
-    tokenizer.Load(train_config.sp_model_path)
-    train_instances = load_instances_from_reddit_json(train_config.dataset_path)
+
+    sp_model_path: str = os.path.join(args.input_data_dir, "data/en.wiki.bpe.vs25000.model")
+    dataset_path: str = os.path.join(args.input_data_dir, "data/sample-dataset.json")
+    test_dataset_path: str = "data/sample-dataset.json"
+
+    tokenizer.Load(sp_model_path)  # train_config.
+    train_instances = load_instances_from_reddit_json(dataset_path)  # train_config.
     RD = RedditData(train_instances, tokenizer, 60)
     dm = DataModule()
     train_loader = dm.train_dataloader(RD)
@@ -166,4 +181,4 @@ def main(**kwargs):
 
 
 if __name__ == "__main__":
-    main(fast_dev_run=True)
+    main(fast_dev_run=False)

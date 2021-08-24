@@ -14,7 +14,7 @@ mounted_dataset = dataset.as_mount()
 
 config = ScriptRunConfig(source_directory='./src', compute_target='low-priority-gpu', environment=env,
                          arguments=['--input_data_dir', mounted_dataset],
-                         script='test.py')
+                         script='model.py')
 
 run = experiment.submit(config)
 aml_url = run.get_portal_url()
