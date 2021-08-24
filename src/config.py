@@ -23,7 +23,7 @@ class ConveRTTrainConfig(NamedTuple):
 
     model_save_dir: str = "lightning_logs/checkpoints/"
     log_dir: str = "lightning_logs"
-    device: str = "cpu"
+    device: str = "cuda"
     use_data_paraller: bool = True
 
     is_reddit: bool = True

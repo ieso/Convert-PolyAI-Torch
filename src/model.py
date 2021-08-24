@@ -138,10 +138,10 @@ def _parse_args():
         description="ConveRT model trainer",
         formatter_class=RawDescriptionHelpFormatter,
     )
-    #parser.add_argument("--gpus", type = int, default = 1)
+    parser.add_argument("--gpus", type = int, default = 1)
     #parser.add_argument("--precision", type = int, default = 16)
-    parser.add_argument("--progress_bar_refresh_rate", type = int, default = 5)
-    parser.add_argument("--row_log_interval", type = int, default = 5)
+    parser.add_argument("--progress_bar_refresh_rate", type = int, default = 1)
+    parser.add_argument("--row_log_interval", type = int, default = 1)
 
     parser.add_argument(
         "--input_data_dir",

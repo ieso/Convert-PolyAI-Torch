@@ -12,9 +12,12 @@ env.docker.base_image = "mcr.microsoft.com/azureml/openmpi3.1.2-cuda10.1-cudnn7-
 dataset = Dataset.get_by_name(workspace, name="convert")
 mounted_dataset = dataset.as_mount()
 
-config = ScriptRunConfig(source_directory='./src', compute_target='low-priority-gpu', environment=env,
-                         arguments=['--input_data_dir', mounted_dataset],
-                         script='model.py')
+config = ScriptRunConfig(source_directory='./src', script='model.py',
+                         compute_target='low-priority-gpu', environment=env,
+                         arguments=['--input_data_dir', mounted_dataset,
+                                    '--progress_bar_refresh_rate', 10,
+                                    '--row_log_interval', 10,
+                                    '--gpus', 1])
 
 run = experiment.submit(config)
 aml_url = run.get_portal_url()
