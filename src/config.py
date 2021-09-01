@@ -1,5 +1,6 @@
 import os
 from typing import NamedTuple
+from torch import cuda
 
 dirname, _ = os.path.split(os.path.dirname(__file__))
 
@@ -23,7 +24,7 @@ class ConveRTTrainConfig(NamedTuple):
 
     model_save_dir: str = "lightning_logs/checkpoints/"
     log_dir: str = "lightning_logs"
-    device: str = "cuda"
+    device: str = "cuda" if cuda.is_available() else "cpu"
     use_data_paraller: bool = True
 
     is_reddit: bool = True

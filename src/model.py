@@ -1,4 +1,4 @@
-import logging
+# import logging
 import os
 import random
 from collections import OrderedDict
@@ -17,8 +17,10 @@ from sentencepiece import SentencePieceProcessor
 from dataset import DataModule, RedditData, load_instances_from_reddit_json
 
 from lr_decay import LearningRateDecayCallback
+from helpers import get_logger
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 def set_seed(seed):
@@ -66,9 +68,9 @@ class SingleContextConvert(pl.LightningModule):
         self.hparams.update(self.model_config._field_defaults)
         self.subword_params = None
 
-        logger.info(
-            "number of parameters: %e", sum(p.numel() for p in self.parameters())
-        )
+        #logger.info(
+        #    "number of parameters: %e", sum(p.numel() for p in self.parameters())
+        #)
     def register_subword_params(self):
         self.subword_params = find_subword_params(self)[0]
 
@@ -80,7 +82,6 @@ class SingleContextConvert(pl.LightningModule):
         but before optimizer step"""
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.subword_params, self.train_config.grad_norm_clip)
-
 
     def configure_optimizers(self):
         """
@@ -122,7 +123,7 @@ class SingleContextConvert(pl.LightningModule):
             {"loss": loss, "progress_bar": tqdm_dict, "log": tqdm_dict}
         )
         # result = pl.TrainResult(minimize=loss, checkpoint_on=loss)
-        # result.log("train_loss", loss)
+        #self.log("train_loss", loss)
         return output
 
     def validation_step(self, batch, batch_idx):
@@ -139,9 +140,8 @@ def _parse_args():
         formatter_class=RawDescriptionHelpFormatter,
     )
     parser.add_argument("--gpus", type = int, default = 1)
-    #parser.add_argument("--precision", type = int, default = 16)
     parser.add_argument("--progress_bar_refresh_rate", type = int, default = 1)
-    parser.add_argument("--row_log_interval", type = int, default = 1)
+    #parser.add_argument("--precision", type = int, default = 16)
 
     parser.add_argument(
         "--input_data_dir",
@@ -175,9 +175,9 @@ def main(**kwargs):
     model.register_subword_params()
 
     trainer = (
-        pl.Trainer.from_argparse_args(args, callbacks = [lr_decay],**kwargs)
+        pl.Trainer.from_argparse_args(args, logger=logger, callbacks=[lr_decay], **kwargs)
     )  # ,checkpoint_callback = checkpoint_callback)  # ,resume_from_checkpoint=)
-    trainer.fit(model, train_dataloader = train_loader, val_dataloaders = train_loader)
+    trainer.fit(model, train_dataloader=train_loader, val_dataloaders=train_loader)
 
 
 if __name__ == "__main__":

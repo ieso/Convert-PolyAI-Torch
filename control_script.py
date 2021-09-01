@@ -1,7 +1,7 @@
 from azureml.core import Experiment, Environment, ScriptRunConfig, Dataset
-from src import helpers
+import azure_helpers
 
-workspace = helpers.get_workspace()
+workspace = azure_helpers.get_workspace()
 
 experiment = Experiment(workspace=workspace, name="sabine-test-1")
 
@@ -16,7 +16,6 @@ config = ScriptRunConfig(source_directory='./src', script='model.py',
                          compute_target='low-priority-gpu', environment=env,
                          arguments=['--input_data_dir', mounted_dataset,
                                     '--progress_bar_refresh_rate', 10,
-                                    '--row_log_interval', 10,
                                     '--gpus', 1])
 
 run = experiment.submit(config)
