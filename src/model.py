@@ -14,7 +14,7 @@ from model_components import FeedForward2, TransformerLayers
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from sentencepiece import SentencePieceProcessor
-from dataset import DataModule, RedditData, load_instances_from_reddit_json
+from dataset import DataModule, RedditData, load_instances_from_ieso_json  # load_instances_from_reddit_json
 
 from lr_decay import LearningRateDecayCallback
 from helpers import get_logger
@@ -122,7 +122,7 @@ class SingleContextConvert(pl.LightningModule):
         output = OrderedDict(
             {"loss": loss, "progress_bar": tqdm_dict, "log": tqdm_dict}
         )
-        # result = pl.TrainResult(minimize=loss, checkpoint_on=loss)
+        result = pl.TrainResult(minimize=loss, checkpoint_on=loss)
         #self.log("train_loss", loss)
         return output
 
@@ -162,11 +162,13 @@ def main(**kwargs):
     args = _parse_args()
 
     sp_model_path: str = os.path.join(args.input_data_dir, "data/en.wiki.bpe.vs25000.model")
-    dataset_path: str = os.path.join(args.input_data_dir, "data/sample-dataset.json")
-    test_dataset_path: str = "data/sample-dataset.json"
+    # dataset_path: str = os.path.join(args.input_data_dir, "data/sample-dataset.json")
+    dataset_path: str = os.path.join(args.input_data_dir, "data/transcripts/02aa9cb4-3875-434e-aea0-7d036ab30dc2.json")
+    test_dataset_path: str = "data/transcripts/02aa78f7-4168-43a2-a314-c8c5cb7f130d.json"
 
     tokenizer.Load(sp_model_path)  # train_config.
-    train_instances = load_instances_from_reddit_json(dataset_path)  # train_config.
+    # train_instances = load_instances_from_reddit_json(dataset_path)
+    train_instances = load_instances_from_ieso_json(dataset_path)
     RD = RedditData(train_instances, tokenizer, 60)
     dm = DataModule()
     train_loader = dm.train_dataloader(RD)

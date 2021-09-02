@@ -120,11 +120,32 @@ def load_instances_from_reddit_json(dataset_path: str) -> List[DatasetInstance]:
     with open(dataset_path) as f:
         for line in f:
             x = json.loads(line)
-            context_keys = sorted([key for key in x.keys() if "context" in key])
+            context_keys = sorted([key for key in x.keys()
+                                   if "context" in key and key != "context_author"])
             instance = DatasetInstance(
                 context = [x[key] for key in context_keys], response = x["response"],
             )
             instances.append(instance)
+    return instances
+
+
+max_context_length = 10
+
+
+def load_instances_from_ieso_json(dataset_path: str) -> List[DatasetInstance]:
+    instances: List[DatasetInstance] = []
+    with open(dataset_path) as f:
+        context = []
+        for line in f:
+            # e.g. {"sequenceNum":1,...,"roleDescription":"Agent","utterance":"Hello Philip"}
+            utterance_object = json.loads(line)
+            if context:
+                instance = DatasetInstance(
+                    context=list(reversed(context[-max_context_length:])),
+                    response=utterance_object["utterance"],
+                )
+                instances.append(instance)
+            context.append(utterance_object["utterance"])
     return instances
 
 
